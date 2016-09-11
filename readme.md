@@ -37,7 +37,7 @@ call `lucid`:
 export PATH="./vendor/bin:$PATH"
 ```
 
-> See [CLI Reference](#cli-reference) for all the commands that are available.
+For a list of all the commands that are available run `lucid` or see the [CLI Reference](#cli-reference).
 
 #### Launching the Interactive Console (UI)
 
@@ -47,7 +47,8 @@ One way is to use the built-in server by running:
 php artisan serve
 ```
 > Any other method would also work (Apache, Nginx, etc...)
-2. Visit your application at */lucid/dashboard*
+2. Run `php artisan vendor:publish --provider="Lucid\Console\LucidServiceProvider"`
+3. Visit your application at */lucid/dashboard*
 
 ### 1. Create a Service
 
@@ -78,7 +79,7 @@ One more step is required for Laravel to recognise the service we just created.
 
 #### Register Service
 
-- Open `src/Foundation/Providers/ServieProvider`
+- Open `src/Foundation/Providers/ServiceProvider`
 - Add `use App\Services\Api\Providers\ApiServiceProvider`
 - In the `register` method add `$this->app->register(ApiServiceProvider::class)`
 
@@ -125,7 +126,7 @@ namespace `App\Domains\User\Jobs\GetUsersJob`).
 ##### Run The Job
 In **ListUsersFeature::handle(Request $request)**
 
-```
+```php
 public function handle(Request $request)
 {
     $users = $this->run(GetUsersJob::class);
@@ -140,14 +141,15 @@ used to respond to a request in JSON format.
 ##### Expose The Feature
 To be able to serve that Feature we need to create a route and a controller that does so.
 
-Create a controller in `src/Services/Api/Http/Controllers/UserController.php`
+Generate a plain controller with the following command
+
+```
+lucid make:controller api user --plain
+```
+
+Add the `get` method to it:
 
 ```php
-namespace App\Services\Api\Http\Controllers;
-
-use App\Foundation\Http\Controller;
-use App\Services\Api\Features\ListUsersFeature;
-
 class UserController extends Controller
 {
     public function get()
@@ -166,11 +168,14 @@ Add the `/users` route within that group.
 Route::get('/users', 'UserController@get');
 ```
 
+Now if you visit `/api/users` you should see the JSON structure.
+
 ## CLI Reference
 Following are the commands available through the `Lucid` CLI.
 
 - `make:service [name]`: Generate a new Service with the given name
-- `make:feature [service] [feature title]`: Generate a new Feature in the given Service with the given title
+- `make:feature [service] [feature title]`: Generate a new Feature in the given Service
 - `make:job [domain] [job title]`: Generate a new Job in the specified Domain (non-existing domains will be created)
+- `make:controller [service] [controller name]`: Generate a new Controller in the given Service
 - `list:services`: List the existing Services
-- `list:features`: List the existing Features, organised per Service
+- `list:features`: List the existing Features, organised by Service
